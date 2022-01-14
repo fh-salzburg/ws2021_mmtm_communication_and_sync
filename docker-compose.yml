@@ -11,6 +11,11 @@ services:
       - 4567:4567
     tty: true
     stdin_open: true
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: "order"
+      # OTEL_EXPORTER_OTLP_ENDPOINT: "https://api.honeycomb.io"
+      # OTEL_EXPORTER_OTLP_HEADERS: "x-honeycomb-team=xxx,x-honeycomb-dataset=fh"
   payment:
     build: .
     command: bash -c "ruby payment.rb -o '0.0.0.0'"
@@ -19,5 +24,35 @@ services:
       - .:/usr/src/app
     tty: true
     stdin_open: true
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: "payment"
   nats:
     image: nats:alpine
+
+  # from git@github.com:open-telemetry/opentelemetry-ruby.git
+  # Jaeger
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "14268"
+      - "14250"
+
+  # Zipkin
+  zipkin-all-in-one:
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9411:9411"
+
+  # Collector
+  otel-collector:
+    image: otel/opentelemetry-collector:0.35.0
+    command: ["--config=/etc/otel-collector-config.yaml", ""]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4318:4318"        # OTLP HTTP Exporter in opentelemetry-ruby is set to 4317 by default
+    depends_on:
+      - jaeger-all-in-one
+      - zipkin-all-in-one

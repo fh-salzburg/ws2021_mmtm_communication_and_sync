@@ -1,4 +1,5 @@
-require "httparty"
+require "sinatra/reloader"
+require "faraday"
 require "nats/io/client"
 require "securerandom"
 require "pry"

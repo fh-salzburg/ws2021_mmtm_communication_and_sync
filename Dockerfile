@@ -1,7 +1,7 @@
 FROM ruby:3
 RUN apt-get update
 RUN apt-get install -y less
-RUN gem install sinatra nats-pure pry puma slim httparty
+RUN gem install sinatra sinatra-contrib nats-pure pry puma slim httparty faraday opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation-all opentelemetry-instrumentation-aws_sdk
 
 WORKDIR /usr/src/app
 COPY . /usr/src/app
