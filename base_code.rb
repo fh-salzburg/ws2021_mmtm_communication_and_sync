@@ -4,6 +4,14 @@ require "nats/io/client"
 require "securerandom"
 require "pry"
 
+require "opentelemetry-sdk"
+require "opentelemetry-exporter-otlp"
+require "opentelemetry-instrumentation-all"
+
+OpenTelemetry::SDK.configure do |c|
+  c.use_all()
+end
+
 configure do
   nats = NATS::IO::Client.new;
   nats.connect("nats")
